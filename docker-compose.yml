@@ -1,0 +1,98 @@
+services:
+  api:
+    build:
+      context: ./api
+    container_name: api
+    ports:
+      - "5555:5000"
+    environment:
+      DOCDB_URI: "mongodb://root:example@documentdb:27017/"
+      OPENSEARCH_ENDPOINT: "opensearch"
+      OPENSEARCH_USER: "admin"
+      OPENSEARCH_PASS: "SunrisePass123!"
+      INDEX_NAME: "law-index"
+    depends_on:
+      - opensearch
+
+  api_gateway:
+    image: nginx:alpine  # Nginxを使用してリバースプロキシとSwagger UIを提供
+    ports:
+      - "8888:8080"
+    environment:
+      - SWAGGER_JSON=/swagger.json
+    volumes:
+      - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf  # マウントするNginx設定ファイル
+      - ./api_gateway/default.conf:/etc/nginx/conf.d/default.conf
+      - ./api_gateway/swagger.json:/swagger.json  # Swagger仕様のファイルをマウント
+      - ./api_gateway/cors.conf:/etc/nginx/templates/cors.conf
+    depends_on:
+      - lambda_register
+      - lambda_all_index
+
+  lambda_all_index:
+    build:
+      context: ./lambda_all_index
+    container_name: lambda_all_index
+    ports:
+      - "8083:8080"
+    environment:
+      LAMBDA_FUNCTION_NAME: "lambda_index"
+      IS_LOCAL: "true"  # ローカル環境フラグ
+      AWS_LAMBDA_FUNCTION_TIMEOUT: 900
+      DOCDB_URI: "mongodb://root:example@documentdb:27017/"
+      MAX_WORKERS: 1
+      BATCH_SIZE: 100
+    depends_on:
+      - documentdb
+      - lambda_index
+
+  lambda_register:
+    build:
+      context: ./lambda_register
+    container_name: lambda_register
+    ports:
+      - "8081:8080"
+    environment:
+      AWS_LAMBDA_FUNCTION_TIMEOUT: 900
+      DOCDB_URI: "mongodb://root:example@documentdb:27017/"
+      OPENSEARCH_ENDPOINT: "opensearch"
+    volumes:
+      - ./data:/app/data  # データディレクトリのマウント
+    depends_on:
+      - documentdb
+
+  lambda_index:
+    build:
+      context: ./lambda_index
+    container_name: lambda_index
+    ports:
+      - "8082:8080"
+    environment:
+      AWS_LAMBDA_FUNCTION_TIMEOUT: 900
+      DOCDB_URI: "mongodb://root:example@documentdb:27017/"
+      INDEX_NAME: "law-index"
+      OPENSEARCH_ENDPOINT: "opensearch"
+      OPENSEARCH_USER: "admin"
+      OPENSEARCH_PASS: "SunrisePass123!"
+    depends_on:
+      - documentdb
+      - opensearch
+
+  documentdb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    volumes:
+      - ./opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
+    ports:
+      - "9200:9200"
+    environment:
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=SunrisePass123!  # 初期パスワードを設定
+      - DISABLE_SECURITY_PLUGIN=true  # セキュリティプラグインを有効にする
+

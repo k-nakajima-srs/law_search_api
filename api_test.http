@@ -1,0 +1,43 @@
+### GET request to example server
+POST http://localhost:5555/register
+Content-Type: application/json
+
+{
+"data_dir": "/app/data"
+}
+###
+POST http://localhost:5555/index
+Content-Type: application/json
+
+{}
+###
+GET http://127.0.0.1:5555/search/by-query?query=税
+Content-Type: application/json
+
+{}
+###
+GET http://127.0.0.1:5555/search/by-id?law_id=329AC0000000061_20240401_506AC0000000009
+Content-Type: application/json
+
+{}
+###
+POST http://127.0.0.1:5555/index
+Content-Type: application/json
+
+{}
+
+### GET request to example server
+POST http://127.0.0.1:8081/2015-03-31/functions/function/invocations
+Content-Type: application/json
+
+{
+"data_dir": "/app/data"
+}
+###
+
+### GET request to example server
+POST http://127.0.0.1:8083/2015-03-31/functions/function/invocations
+Content-Type: application/json
+
+{}
+###

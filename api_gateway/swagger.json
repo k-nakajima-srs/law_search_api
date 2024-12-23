@@ -1,0 +1,119 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Lambda API"
+  },
+  "paths": {
+    "/register": {
+      "post": {
+        "summary": "Register data",
+        "parameters": [
+          {
+            "name": "data_dir",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data_dir": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "uri": "http://lambda_register:8080/2015-03-31/functions/function/invocations",
+          "httpMethod": "POST",
+          "type": "http",
+          "requestParameters": {},
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          }
+        }
+      }
+    },
+    "/allindex": {
+      "post": {
+        "summary": "Create All index",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "uri": "http://lambda_all_index:8080/2015-03-31/functions/function/invocations",
+          "httpMethod": "POST",
+          "type": "http",
+          "requestParameters": {},
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          }
+        }
+      }
+    },
+    "/index": {
+      "post": {
+        "summary": "Index data",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "Number of documents to skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "Number of documents to limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully indexed the data"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "uri": "http://lambda_index:8080/2015-03-31/functions/function/invocations",
+          "httpMethod": "POST",
+          "type": "http",
+          "requestParameters": {},
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+Flask
+pymongo
+requests
+opensearch-py
+ja-law-parser
+pydantic==2.9.2
+pydantic-xml==2.11.0
+pydantic-core==2.23.4
