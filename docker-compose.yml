@@ -7,12 +7,14 @@ services:
       - "5555:5000"
     environment:
       DOCDB_URI: "mongodb://root:example@documentdb:27017/"
-      OPENSEARCH_ENDPOINT: "opensearch"
-      OPENSEARCH_USER: "admin"
-      OPENSEARCH_PASS: "SunrisePass123!"
-      INDEX_NAME: "law-index"
+      OPENSEARCH_ENDPOINT: ${OPENSEARCH_ENDPOINT}
+      OPENSEARCH_USER: ${OPENSEARCH_USER}
+      OPENSEARCH_PASS: ${OPENSEARCH_PASS}
+      INDEX_NAME: ${INDEX_NAME}
     depends_on:
       - opensearch
+    env_file:
+      - .env
 
   api_gateway:
     image: nginx:alpine  # Nginxを使用してリバースプロキシとSwagger UIを提供
@@ -36,12 +38,12 @@ services:
     ports:
       - "8083:8080"
     environment:
-      LAMBDA_FUNCTION_NAME: "lambda_index"
-      IS_LOCAL: "true"  # ローカル環境フラグ
-      AWS_LAMBDA_FUNCTION_TIMEOUT: 900
-      DOCDB_URI: "mongodb://root:example@documentdb:27017/"
-      MAX_WORKERS: 1
-      BATCH_SIZE: 100
+      LAMBDA_FUNCTION_NAME: ${LAMBDA_FUNCTION_NAME}
+      IS_LOCAL: ${IS_LOCAL}  # ローカル環境フラグ
+      AWS_LAMBDA_FUNCTION_TIMEOUT: ${AWS_LAMBDA_FUNCTION_TIMEOUT}
+      DOCDB_URI: ${DOCDB_URI}
+      MAX_WORKERS: ${MAX_WORKERS}
+      BATCH_SIZE: ${BATCH_SIZE}
     depends_on:
       - documentdb
       - lambda_index
@@ -53,9 +55,8 @@ services:
     ports:
       - "8081:8080"
     environment:
-      AWS_LAMBDA_FUNCTION_TIMEOUT: 900
-      DOCDB_URI: "mongodb://root:example@documentdb:27017/"
-      OPENSEARCH_ENDPOINT: "opensearch"
+      AWS_LAMBDA_FUNCTION_TIMEOUT: ${AWS_LAMBDA_FUNCTION_TIMEOUT}
+      DOCDB_URI: ${DOCDB_URI}
     volumes:
       - ./data:/app/data  # データディレクトリのマウント
     depends_on:
@@ -68,12 +69,12 @@ services:
     ports:
       - "8082:8080"
     environment:
-      AWS_LAMBDA_FUNCTION_TIMEOUT: 900
-      DOCDB_URI: "mongodb://root:example@documentdb:27017/"
-      INDEX_NAME: "law-index"
-      OPENSEARCH_ENDPOINT: "opensearch"
-      OPENSEARCH_USER: "admin"
-      OPENSEARCH_PASS: "SunrisePass123!"
+      AWS_LAMBDA_FUNCTION_TIMEOUT: ${AWS_LAMBDA_FUNCTION_TIMEOUT}
+      DOCDB_URI: ${DOCDB_URI}
+      INDEX_NAME: ${INDEX_NAME}
+      OPENSEARCH_ENDPOINT: ${OPENSEARCH_ENDPOINT}
+      OPENSEARCH_USER: ${OPENSEARCH_USER}
+      OPENSEARCH_PASS: ${OPENSEARCH_PASS}
     depends_on:
       - documentdb
       - opensearch
@@ -93,6 +94,6 @@ services:
     ports:
       - "9200:9200"
     environment:
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=SunrisePass123!  # 初期パスワードを設定
-      - DISABLE_SECURITY_PLUGIN=true  # セキュリティプラグインを有効にする
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASS}  # 初期パスワードを設定
+      - DISABLE_SECURITY_PLUGIN=${DISABLE_SECURITY_PLUGIN}  # セキュリティプラグインを有効にする
 
